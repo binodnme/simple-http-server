@@ -1,6 +1,5 @@
 import java.io.*;
 import java.net.*;
-import java.util.Date;
 
 /**
  * @Author Binod Shrestha <binodshrestha@lftechnology.com>
@@ -11,8 +10,6 @@ public class SimpleHTTPServer {
   private static final String OUTPUT_HEADERS = "HTTP/1.1 200 OK\r\n" + "Content-Type: text/html\r\n" + "Content-Length: ";
   private static final String OUTPUT_END_OF_HEADERS = "\r\n\r\n";
   private static String basePath = null;
-  private static String currentPath = "";
-  private static String parentPath = "";
 
   public static void main(String[] args) throws IOException {
 
@@ -45,14 +42,17 @@ public class SimpleHTTPServer {
 
 
         if(testFile.isFile()){
-          FileInputStream fs = new FileInputStream(testFile);
-          int c;
-          while((c = fs.read())!=-1){
-            output.write(c);
+          InputStream is = new FileInputStream(testFile);
+          OutputStream os = socket.getOutputStream();
+          byte[] bytes = new byte[(int) testFile.length()];
+          int count;
+          while((count = is.read(bytes)) > 0){
+            os.write(bytes,0,count);
           }
+          os.close();
+          is.close();
 
         }else{
-
           File[] files = getAllFiles(new File(fullPath));
           String fileName = "";
           System.out.println("------------------------------------------------------------");
@@ -70,7 +70,6 @@ public class SimpleHTTPServer {
 
           final String OUTPUT = "<html><head><title>Server</title></head><body><h2>Directory list</h2>"+fileName+"</body></html>";
           output.write(OUTPUT_HEADERS + OUTPUT.length() + OUTPUT_END_OF_HEADERS + OUTPUT);
-
         }
 
 
